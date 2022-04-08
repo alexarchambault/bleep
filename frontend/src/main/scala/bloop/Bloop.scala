@@ -1,30 +1,38 @@
 package bloop
 
+import java.io.InputStream
+import java.io.PrintStream
 import java.net.InetAddress
-
-import bloop.logging.{BloopLogger, Logger}
-import bloop.util.ProxySetup
-
-import java.io.{File, InputStream, OutputStream, PrintStream}
-import java.net.{ServerSocket, Socket, SocketAddress}
-import java.nio.ByteBuffer
-import java.nio.channels.{Channels, ReadableByteChannel, SeekableByteChannel}
+import java.net.ServerSocket
+import java.nio.channels.SeekableByteChannel
+import java.nio.file.Files
+import java.nio.file.Path
+import java.nio.file.Paths
+import java.nio.file.StandardOpenOption
 import java.nio.file.attribute.PosixFilePermissions
-import java.nio.file.{Files, Path, Paths, StandardOpenOption}
-import java.util.concurrent.atomic.{AtomicBoolean, AtomicInteger}
-import java.util.concurrent.{Executors, ThreadFactory, TimeUnit}
-
-import com.martiansoftware.nailgun.{NGConstants, NGListeningAddress}
-import com.martiansoftware.nailgun.{Alias, NGContext, NGServer}
-import libdaemonjvm._
-import libdaemonjvm.internal.{LockProcess, SocketHandler}
-import libdaemonjvm.server._
+import java.util.concurrent.Executors
+import java.util.concurrent.ThreadFactory
+import java.util.concurrent.atomic.AtomicInteger
 
 import scala.concurrent.duration.DurationInt
-import scala.util.{Properties, Try}
+import scala.util.Properties
+import scala.util.Try
 
+import bloop.logging.BloopLogger
+import bloop.logging.Logger
+import bloop.util.ProxySetup
+
+import com.martiansoftware.nailgun.Alias
+import com.martiansoftware.nailgun.NGConstants
+import com.martiansoftware.nailgun.NGContext
+import com.martiansoftware.nailgun.NGListeningAddress
+import com.martiansoftware.nailgun.NGServer
+import libdaemonjvm._
+import libdaemonjvm.internal.LockProcess
+import libdaemonjvm.internal.SocketHandler
+import libdaemonjvm.server._
 import org.slf4j
-import sun.misc.{Signal, SignalHandler}
+import sun.misc.Signal
 
 sealed abstract class Bloop
 

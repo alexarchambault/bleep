@@ -1,6 +1,6 @@
 package bloop.bloopgun
 
-import java.nio.file.Path
+
 
 final case class BloopgunParams(
     bloopVersion: String,
