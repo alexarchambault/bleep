@@ -20,14 +20,14 @@ import org.scalajs.jsenv.jsdomnodejs.JSDOMNodeJSEnv
 import org.scalajs.jsenv.nodejs.NodeJSEnv
 import org.scalajs.linker.PathIRContainer
 import org.scalajs.linker.PathOutputDirectory
-import org.scalajs.linker.PathOutputFile
 import org.scalajs.linker.StandardImpl
-import org.scalajs.linker.interface.{ModuleKind => ScalaJSModuleKind, _}
+import org.scalajs.linker.interface.{ModuleKind => ScalaJSModuleKind}
+import org.scalajs.linker.interface.{ModuleSplitStyle => ScalaJSModuleKindSplitStyle, _}
 import org.scalajs.logging.Level
 import org.scalajs.logging.{Logger => JsLogger}
 import org.scalajs.testing.adapter.TestAdapter
 import org.scalajs.testing.adapter.TestAdapterInitializer
-import java.nio.file.Files
+import bloop.config.Config.ModuleSplitStyleJS
 
 /**
  * Defines operations provided by the Scala.JS 1.x toolchain.
@@ -66,6 +66,13 @@ object JsBridge {
         case ModuleKindJS.ESModule => ScalaJSModuleKind.ESModule
       }
 
+      val scalaJSModuleKindSplitStyle: Option[ScalaJSModuleKindSplitStyle] = config.moduleSplitStyle.map { 
+        case ModuleSplitStyleJS.FewestModules => ScalaJSModuleKindSplitStyle.FewestModules
+        case ModuleSplitStyleJS.SmallestModules => ScalaJSModuleKindSplitStyle.SmallestModules
+        case ModuleSplitStyleJS.SmallModulesFor(packages) => 
+          ScalaJSModuleKindSplitStyle.SmallModulesFor(packages)
+      }
+
       val useClosure = isFullLinkJS && config.kind != ModuleKindJS.ESModule
 
       val linkerConfig = StandardConfig()
@@ -74,7 +81,13 @@ object JsBridge {
         .withModuleKind(scalaJSModuleKind)
         .withSourceMap(config.emitSourceMaps)
 
-      StandardImpl.clearableLinker(linkerConfig)
+      (config.kind, scalaJSModuleKindSplitStyle) match {
+        case (ModuleKindJS.ESModule, Some(value)) =>
+          StandardImpl.clearableLinker(
+            linkerConfig.withModuleSplitStyle(value)
+          )
+        case (_, _) => StandardImpl.clearableLinker(linkerConfig)
+      }
     }
   }
 
