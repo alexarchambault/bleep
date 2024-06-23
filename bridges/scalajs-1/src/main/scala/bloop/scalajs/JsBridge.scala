@@ -66,12 +66,13 @@ object JsBridge {
         case ModuleKindJS.ESModule => ScalaJSModuleKind.ESModule
       }
 
-      val scalaJSModuleKindSplitStyle: Option[ScalaJSModuleKindSplitStyle] = config.moduleSplitStyle.map { 
-        case ModuleSplitStyleJS.FewestModules => ScalaJSModuleKindSplitStyle.FewestModules
-        case ModuleSplitStyleJS.SmallestModules => ScalaJSModuleKindSplitStyle.SmallestModules
-        case ModuleSplitStyleJS.SmallModulesFor(packages) => 
-          ScalaJSModuleKindSplitStyle.SmallModulesFor(packages)
-      }
+      val scalaJSModuleKindSplitStyle: Option[ScalaJSModuleKindSplitStyle] =
+        config.moduleSplitStyle.map {
+          case ModuleSplitStyleJS.FewestModules => ScalaJSModuleKindSplitStyle.FewestModules
+          case ModuleSplitStyleJS.SmallestModules => ScalaJSModuleKindSplitStyle.SmallestModules
+          case ModuleSplitStyleJS.SmallModulesFor(packages) =>
+            ScalaJSModuleKindSplitStyle.SmallModulesFor(packages)
+        }
 
       val useClosure = isFullLinkJS && config.kind != ModuleKindJS.ESModule
 
@@ -111,15 +112,15 @@ object JsBridge {
 
     val moduleInitializers = mainClass match {
       case Some(mainClass) if runMain =>
-        logger.debug(s"Setting up main module initializers for ${project}")
+        logger.debug(s"Setting up main module initializers for $project")
         List(ModuleInitializer.mainMethodWithArgs(mainClass, "main"))
       case _ =>
         if (runMain) {
-          logger.debug(s"Setting up no module initializers, commonjs module detected ${project}")
+          logger.debug(s"Setting up no module initializers, commonjs module detected $project")
           Nil // If run is disabled, it's a commonjs module and we link with exports
         } else {
           // There is no main class, install the test module initializers
-          logger.debug(s"Setting up test module initializers for ${project}")
+          logger.debug(s"Setting up test module initializers for $project")
           List(
             ModuleInitializer.mainMethod(
               TestAdapterInitializer.ModuleClassName,
